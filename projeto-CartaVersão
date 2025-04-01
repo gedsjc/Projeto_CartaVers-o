@@ -1,0 +1,312 @@
+
+Este projeto de sistema de controle de carta de versão
+
+
+
+*** PAGINA PRINCIPAL 
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMO SISTEMAS - Validação de Módulos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f9fb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"], select, textarea, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus, input[type="file"]:focus {
+            border-color: #4CAF50;
+        }
+
+        .module-list label {
+            display: inline-block;
+            margin-right: 20px;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .module-list input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .module-list {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        #imagem-homologacao {
+            display: none;
+            margin-top: 20px;
+        }
+
+        button[type="submit"], .history-button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover, .history-button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .result h2 {
+            color: #333;
+            font-size: 22px;
+        }
+
+        .result p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .result strong {
+            color: #333;
+        }
+
+        .history-button {
+            background-color: #007bff;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .history-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Validação de Módulos - DEMO SISTEMAS</h1>
+    <p>Preencha o formulário para validar os módulos e anexar a imagem de homologação.</p>
+
+    <!-- Formulário -->
+    <form method="POST" action="" enctype="multipart/form-data">
+        <label for="versao">Versão Homologada:</label>
+        <input type="text" id="versao" name="versao" placeholder="Ex: 1.0, 2.0" required>
+        
+        <label for="erro">Erro:</label>
+        <select id="erro" name="erro" required>
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+        </select>
+
+        <div id="descricao-erro" style="display: none;">
+            <label for="descricao">Descrição do Erro:</label>
+            <textarea id="descricao" name="descricao" rows="4" placeholder="Descreva o erro..." required></textarea>
+        </div>
+
+        <div class="module-list">
+            <label><input type="checkbox" name="modulos[]" value="ambulatorio"> Ambulatório</label>
+            <label><input type="checkbox" name="modulos[]" value="almoxarifado"> Almoxarifado</label>
+            <label><input type="checkbox" name="modulos[]" value="imunizacao"> Imunização</label>
+            <label><input type="checkbox" name="modulos[]" value="laboratorio"> Laboratório</label>
+            <label><input type="checkbox" name="modulos[]" value="regulacao"> Regulação</label>
+            <label><input type="checkbox" name="modulos[]" value="portuario_electronico"> Portuário Eletrônico</label>
+            <label><input type="checkbox" name="modulos[]" value="frotas"> Frotas</label>
+        </div>
+
+        <!-- Campo para upload de imagem de homologação -->
+        <div id="imagem-homologacao">
+            <label for="imagem">Anexe a imagem da homologação realizada:</label>
+            <input type="file" id="imagem" name="imagem" accept="image/*">
+        </div>
+
+        <button type="submit" name="submit">Submeter</button>
+    </form>
+
+    <!-- Botão para acessar o histórico de versões -->
+    <button class="history-button" onclick="window.location.href='historico.php'">Ver Histórico de Versões</button>
+
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Recupera os valores do formulário
+        $versao = $_POST['versao'];
+        $erro = $_POST['erro'];
+        $descricao = isset($_POST['descricao']) ? $_POST['descricao'] : '';
+        $modulos = isset($_POST['modulos']) ? implode(', ', $_POST['modulos']) : 'Nenhum módulo selecionado';
+
+        // Exibe as informações após o envio do formulário
+        echo "<div class='result'>";
+        echo "<h2>Resumo da Submissão</h2>";
+        echo "<p><strong>Versão Homologada:</strong> $versao</p>";
+        echo "<p><strong>Erro:</strong> $erro</p>";
+
+        if ($erro === 'sim') {
+            echo "<p><strong>Descrição do Erro:</strong> $descricao</p>";
+        } else {
+            echo "<p><strong>Melhorias Aplicadas:</strong> Nenhuma descrição necessária</p>";
+        }
+
+        echo "<p><strong>Módulos Validados:</strong> $modulos</p>";
+
+        // Verifica se uma imagem foi anexada
+        if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
+            echo "<p><strong>Imagem de Homologação:</strong> " . $_FILES['imagem']['name'] . "</p>";
+        } else {
+            echo "<p><strong>Imagem de Homologação:</strong> Nenhuma imagem anexada</p>";
+        }
+        echo "</div>";
+    }
+    ?>
+</div>
+
+<script>
+// Exibir o campo de descrição de erro se "Sim" for selecionado
+document.getElementById('erro').addEventListener('change', function () {
+    var descricaoErroDiv = document.getElementById('descricao-erro');
+    if (this.value === 'sim') {
+        descricaoErroDiv.style.display = 'block';
+    } else {
+        descricaoErroDiv.style.display = 'none';
+    }
+});
+
+// Exibir o campo de imagem de homologação se algum módulo for selecionado
+document.querySelectorAll('input[name="modulos[]"]').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        var imagemHomologacaoDiv = document.getElementById('imagem-homologacao');
+        if (document.querySelectorAll('input[name="modulos[]"]:checked').length > 0) {
+            imagemHomologacaoDiv.style.display = 'block';
+        } else {
+            imagemHomologacaoDiv.style.display = 'none';
+        }
+    });
+});
+</script>
+
+----------------------------------------------------------------------------------------------
+
+*** NOVA BOTÂO Historico de Versão
+
+<?php
+// Verifique se a versão foi passada
+if (isset($_GET['versao'])) {
+    $versaoAtual = $_GET['versao'];
+    $versaoAnterior = getVersaoAnterior($versaoAtual);
+} else {
+    $versaoAnterior = "Versão não especificada!";
+}
+
+function getVersaoAnterior($versao) {
+    // Aqui, você pode implementar lógica para buscar a versão anterior.
+    // Para exemplo, vamos considerar versões fictícias:
+    $versionMap = [
+        '3.0' => '2.0',
+        '2.0' => '1.0',
+        '1.0' => 'Versão Inicial',
+    ];
+
+    return isset($versionMap[$versao]) ? $versionMap[$versao] : "Versão anterior não encontrada.";
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Versões</title>
+    <style>
+        /* Adicione um estilo básico aqui */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Histórico de Versões</h1>
+    <p>Versão Atual: <?php echo $versaoAtual; ?></p>
+    <p>Versão Anterior: <?php echo $versaoAnterior; ?></p>
+
+    <p>Conteúdo homologado na versão anterior:</p>
+    <!-- Aqui você pode adicionar mais detalhes sobre o que foi homologado na versão anterior -->
+    <ul>
+        <li>Ambulatório</li>
+        <li>Laboratório</li>
+        <li>Frotas</li>
+    </ul>
+
+    <button onclick="window.location.href='index.php'">Voltar para o Formulário</button>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+</body>
+</html>
